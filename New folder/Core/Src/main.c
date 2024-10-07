@@ -1,4 +1,3 @@
-
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -101,7 +100,7 @@ int main(void)
 
 
 
-setTimer1(50);
+setTimer1(25);
   while (1)
   {
 
@@ -310,24 +309,24 @@ int led_buffer [4] = {5 , 4 , 0 , 6};
 					        }
 	}
 	void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-		static int timer_counter = 500;  // Biến đếm thời gian*/
+		static int timer_counter = -250;  // Biến đếm thời gian*/
 
 
-		      if (timer1_flag == 1){
-		    	  timer_counter += 500;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
-             if (timer_counter >= 1000) {
-            	 HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
-            	 timer_counter = 0;  // Reset lại biến đếm sau 1 giây
-		    	  			        }
-		    	  update7SEG(index_led);
-		    	  index_led++;
-		    	  if( index_led >= MAX_LED){
-		    		  index_led = 0;
-		    	  }
+				      if (timer1_flag == 1){
+				    	  timer_counter += 250;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
+		             if (timer_counter >= 1000) {
+		            	 HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
+		            	 timer_counter = 0;  // Reset lại biến đếm sau 1 giây
+				    	  			        }
+				    	  update7SEG(index_led);
+				    	  index_led++;
+				    	  if( index_led >= MAX_LED){
+				    		  index_led = 0;
+				    	  }
 
 
 
-			        setTimer1(50);
+			        setTimer1(25);
 		 }
 	   timerRun();
 	}
