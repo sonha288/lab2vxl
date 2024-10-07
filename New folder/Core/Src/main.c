@@ -102,12 +102,10 @@ int main(void)
 
 setTimer1(25);
 int hour = 15 , minute = 8 , second = 50;
-setTimer2(25);
+setTimer2(100);
 while (1) {
-	if( timer1_flag == 1) {
-		HAL_GPIO_TogglePin ( GPIOA , LED_RED_Pin ) ;
-		setTimer2(25) ;
-	}
+	 if (timer2_flag == 1){
+//    HAL_GPIO_TogglePin(GPIOA, LED_RED_Pin);
 	second ++;
 	if ( second >= 60) {
 		second = 0;
@@ -121,10 +119,16 @@ while (1) {
 		hour = 0;
 	}
 	updateClockBuffer (hour , minute) ;
-	HAL_Delay (1000) ;
+  // Initialize timer for 25ms period
+	    setTimer2(100);//HAL_Delay(1000);
+//	 setTimer2(100);
+		}
+}
+
+//	setTimer1(100);
 
 }
-	    }    /* USER CODE END WHILE */
+	      /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
@@ -254,7 +258,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 const int MAX_LED = 4;
 int index_led = 0;
-int led_buffer [4] = {0,0,0,0};
+int led_buffer [4] = {};
 void updateClockBuffer(int hour, int minute) {
     // Separate the digits of hour and minute
     led_buffer[0] = hour / 10;      // Tens digit of hour
@@ -263,7 +267,7 @@ void updateClockBuffer(int hour, int minute) {
     led_buffer[3] = minute % 10;    // Units digit of minute
 }
 
-	 void display7SEG(int counter){
+ void display7SEG(int counter){
 
 	    HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin| SEG4_Pin| SEG5_Pin | SEG6_Pin, SET );
 	  		  switch (counter){
@@ -342,22 +346,20 @@ void updateClockBuffer(int hour, int minute) {
 				    	  timer_counter += 250;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
 		             if (timer_counter >= 1000) {
 		            	 HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
-		            	 timer_counter = 0;  // Reset lại biến đếm sau 1 giây
-				    	  			        }
-				    	  update7SEG(index_led);
-				    	  index_led++;
-				    	  if( index_led >= MAX_LED){
-				    		  index_led = 0;
-				    	  }
+		            	 timer_counter = 0;  }// Reset lại biến đếm sau 1 giây
+				    	 update7SEG(index_led);
+				    	 index_led++;
+				    	 if( index_led >= MAX_LED){
+				    		 index_led = 0;
+				    	 }
+				    	 setTimer1(25);
+
+		             }
 
 
-				    	  setTimer1(25);
-
-//			        setTimer1(25);
-		 }
 	   timerRun();
-	}
 
+	}
 /* USER CODE END 4 */
 
 /**
