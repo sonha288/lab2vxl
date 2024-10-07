@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "software_timer.h"
 
 /* USER CODE END Includes */
 
@@ -89,21 +90,62 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start_IT (& htim2 ) ;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  HAL_TIM_Base_Start_IT(&htim2);
+
+  HAL_TIM_Base_Start_IT(&htim2);
+
+   void display7SEG(int counter){
+
+    HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin| SEG4_Pin| SEG5_Pin | SEG6_Pin, SET );
+  		  switch (counter){
+
+ 	  case 1:
+       HAL_GPIO_WritePin(GPIOB, SEG2_Pin | SEG1_Pin , RESET );
+ 	   break;
+
+ 	  case 2:
+ 	   HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG3_Pin | SEG4_Pin | SEG6_Pin, RESET );
+ 	   break;
+
+ 	  }
+   }
+ setTimer1(50);
   while (1)
   {
+
     /* USER CODE END WHILE */
+	  if (timer1_flag == 1) {  // Kiểm tra ngắt đến từ Timer2
+		  static int status = 1 ;
+	 	        switch ( status) {
+	 	            case 1:
 
-    /* USER CODE BEGIN 3 */
+	 	                HAL_GPIO_WritePin(GPIOA, EN0_Pin, RESET);
+	 	                HAL_GPIO_WritePin(GPIOA, EN1_Pin, SET);
+		 	            display7SEG(1);
+
+	 	                status = 2;
+	 	                break;
+	 	            case 2:
+	 	                HAL_GPIO_WritePin(GPIOA, EN0_Pin, SET);
+	 	                HAL_GPIO_WritePin(GPIOA, EN1_Pin, RESET);
+	 	                display7SEG(2);
+
+	 	                status = 1 ;
+	 	                break;
+
+	 	            default:
+	 	            	break;
+	 	        }
+	 	        setTimer1(50);
+	  }
   }
-  /* USER CODE END 3 */
 }
-
 /**
+ *
   * @brief System Clock Configuration
   * @retval None
   */
@@ -197,26 +239,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|EN_0_Pin|EN_1_Pin|EN_2_Pin
-                          |EN_3_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|EN0_Pin|EN1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, SEG_0_Pin|SEG_1_Pin|SEG_2_Pin|SEG_3_Pin
-                          |SEG_4_Pin|SEG_5_Pin|SEG_6_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
+                          |SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_RED_Pin EN_0_Pin EN_1_Pin EN_2_Pin
-                           EN_3_Pin */
-  GPIO_InitStruct.Pin = LED_RED_Pin|EN_0_Pin|EN_1_Pin|EN_2_Pin
-                          |EN_3_Pin;
+  /*Configure GPIO pins : LED_RED_Pin EN0_Pin EN1_Pin */
+  GPIO_InitStruct.Pin = LED_RED_Pin|EN0_Pin|EN1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SEG_0_Pin SEG_1_Pin SEG_2_Pin SEG_3_Pin
-                           SEG_4_Pin SEG_5_Pin SEG_6_Pin */
-  GPIO_InitStruct.Pin = SEG_0_Pin|SEG_1_Pin|SEG_2_Pin|SEG_3_Pin
-                          |SEG_4_Pin|SEG_5_Pin|SEG_6_Pin;
+  /*Configure GPIO pins : SEG0_Pin SEG1_Pin SEG2_Pin SEG3_Pin
+                           SEG4_Pin SEG5_Pin SEG6_Pin */
+  GPIO_InitStruct.Pin = SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
+                          |SEG4_Pin|SEG5_Pin|SEG6_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -225,16 +264,9 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-int counter = 100;
- void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim )
-{
- counter--;
- if( counter <= 0) {
- counter = 100;
- HAL_GPIO_TogglePin ( LED_RED_GPIO_Port , LED_RED_Pin ) ;
- }
- }
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	timerRun();
+}
 /* USER CODE END 4 */
 
 /**
