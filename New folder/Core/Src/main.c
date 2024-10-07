@@ -1,3 +1,4 @@
+
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -233,80 +234,98 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+const int MAX_LED = 4;
+int index_led = 0;
+int led_buffer [4] = {5 , 4 , 0 , 6};
+
 	 void display7SEG(int counter){
 
 	    HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin| SEG4_Pin| SEG5_Pin | SEG6_Pin, SET );
 	  		  switch (counter){
-
+	  	  case 0:
+	  	   HAL_GPIO_WritePin(GPIOB,SEG0_Pin| SEG1_Pin | SEG2_Pin| SEG3_Pin| SEG4_Pin | SEG5_Pin, RESET );
+	  	   break;
 	 	  case 1:
 	       HAL_GPIO_WritePin(GPIOB, SEG2_Pin | SEG1_Pin , RESET );
 	 	   break;
-
 	 	  case 2:
 	 	   HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG3_Pin | SEG4_Pin | SEG6_Pin, RESET );
 	 	   break;
 	 	  case 3:
 	 	   HAL_GPIO_WritePin(GPIOB,  SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin  | SEG6_Pin, RESET );
 	 	   break;
-
-	 	  case 0:
-	 	  HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin | SEG4_Pin | SEG5_Pin, RESET );
+	 	  case 4:
+	 	  HAL_GPIO_WritePin(GPIOB, SEG1_Pin | SEG2_Pin | SEG6_Pin | SEG5_Pin, RESET );
 	 	  break;
-	 	  }
+	 	  case 5:
+	 	  HAL_GPIO_WritePin(GPIOB,SEG0_Pin| SEG2_Pin | SEG3_Pin | SEG6_Pin | SEG5_Pin, RESET );
+	 	  break;
+	 	  case 6:
+	 	  HAL_GPIO_WritePin(GPIOB,SEG0_Pin| SEG2_Pin | SEG3_Pin| SEG4_Pin | SEG6_Pin | SEG5_Pin, RESET );
+	 	  break;
+	 	  case 7:
+	 	  HAL_GPIO_WritePin(GPIOB, SEG1_Pin | SEG2_Pin | SEG0_Pin , RESET );
+	 	  break;
+	 	  case 8:
+	 	  HAL_GPIO_WritePin(GPIOB,SEG0_Pin| SEG1_Pin | SEG2_Pin| SEG3_Pin| SEG4_Pin| SEG6_Pin | SEG5_Pin, RESET );
+	 	  break;
+	 	  case 9:
+	 	  HAL_GPIO_WritePin(GPIOB,SEG0_Pin| SEG1_Pin | SEG2_Pin| SEG3_Pin | SEG6_Pin | SEG5_Pin, RESET );
+	 	  break;
+	  		  }
 	   }
+	void update7SEG(int index){
+					        switch (index) {
+					            case 0:
+					                // Hiển thị số 1 trên LED thứ nhất
+					                HAL_GPIO_WritePin(GPIOA, EN0_Pin, RESET);
+					                HAL_GPIO_WritePin(GPIOA, EN1_Pin | EN2_Pin | EN3_Pin, SET);
+					                display7SEG(led_buffer[0]);
+					                break;
 
+					            case 1:
+					                // Hiển thị số 2 trên LED thứ hai
+					                HAL_GPIO_WritePin(GPIOA, EN1_Pin, RESET);
+					                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN2_Pin | EN3_Pin, SET);
+					                display7SEG(led_buffer[1]);
+					                break;
+
+					            case 2:
+					                // Hiển thị số 3 trên LED thứ ba
+					                HAL_GPIO_WritePin(GPIOA, EN2_Pin, RESET);
+					                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN3_Pin, SET);
+					                display7SEG(led_buffer[2]);
+					                break;
+
+					            case 3:
+					                // Hiển thị số 0 trên LED thứ tư
+					                HAL_GPIO_WritePin(GPIOA, EN3_Pin, RESET);
+					                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN2_Pin, SET);
+					                display7SEG(led_buffer[3]);
+					                  // Quay lại trạng thái ban đầu
+					                break;
+
+					            default:
+					                break;
+					        }
+	}
 	void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-		 static int timer_counter = 0;  // Biến đếm thời gian*/
-			  static int status = 1;         // Trạng thái quét LED 7 đoạn
+		static int timer_counter = 500;  // Biến đếm thời gian*/
 
-			  //   Kiểm tra nếu đạt đến 1 giây để nhấp nháy LED DOT
 
-		 if (timer1_flag == 1){
-			 timer_counter += 500;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
+		      if (timer1_flag == 1){
+		    	  timer_counter += 500;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
+             if (timer_counter >= 1000) {
+            	 HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
+            	 timer_counter = 0;  // Reset lại biến đếm sau 1 giây
+		    	  			        }
+		    	  update7SEG(index_led);
+		    	  index_led++;
+		    	  if( index_led >= MAX_LED){
+		    		  index_led = 0;
+		    	  }
 
-			        // Nhấp nháy LED DOT sau mỗi 1 giây
-			        if (timer_counter >= 1000) {
-			            HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
-			            timer_counter = 0;  // Reset lại biến đếm sau 1 giây
-			        }
-			        switch (status) {
-			            case 1:
-			                // Hiển thị số 1 trên LED thứ nhất
-			                HAL_GPIO_WritePin(GPIOA, EN0_Pin, RESET);
-			                HAL_GPIO_WritePin(GPIOA, EN1_Pin | EN2_Pin | EN3_Pin, SET);
-			                display7SEG(1);
-			                status = 2;
-			                break;
 
-			            case 2:
-			                // Hiển thị số 2 trên LED thứ hai
-			                HAL_GPIO_WritePin(GPIOA, EN1_Pin, RESET);
-			                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN2_Pin | EN3_Pin, SET);
-			                display7SEG(2);
-			                status = 3;
-			                break;
-
-			            case 3:
-			                // Hiển thị số 3 trên LED thứ ba
-			                HAL_GPIO_WritePin(GPIOA, EN2_Pin, RESET);
-			                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN3_Pin, SET);
-			                display7SEG(3);
-			                status = 4;
-			                break;
-
-			            case 4:
-			                // Hiển thị số 0 trên LED thứ tư
-			                HAL_GPIO_WritePin(GPIOA, EN3_Pin, RESET);
-			                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN2_Pin, SET);
-			                display7SEG(0);
-			                status = 1;  // Quay lại trạng thái ban đầu
-			                break;
-
-			            default:
-			                status = 1;
-			                break;
-			        }
-			        HAL_GPIO_TogglePin(GPIOA, DOT_Pin);
 
 			        setTimer1(50);
 		 }
