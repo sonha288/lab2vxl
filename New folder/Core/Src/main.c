@@ -65,69 +65,72 @@ static void MX_TIM2_Init(void);
   * @retval int
   */
 int main(void)
-{
-  /* USER CODE BEGIN 1 */
+{{
+	  HAL_Init();
+	  SystemClock_Config();
+	  MX_GPIO_Init();
+	  MX_TIM2_Init();
 
-  /* USER CODE END 1 */
+	  HAL_TIM_Base_Start_IT(&htim2);
 
-  /* MCU Configuration--------------------------------------------------------*/
+	  const int MAX_LED = 4;
+	  int index_led = 0;
+	  int led_buffer[4] = {0};
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	  int hour = 15, minute = 8, second = 50;
+	  setTimer1(25);    // 25ms timer for LED refresh
+	  setTimer2(100);   // 1000ms timer for clock update
 
-  /* USER CODE BEGIN Init */
+	  static int timer_counter = -25;  // Counter for DOT blinking
+      updateClockBuffer(hour, minute);  // Update the LED buffer with the new time
 
-  /* USER CODE END Init */
+	  while (1)
+	  {
+	    if (timer2_flag == 1)
+	    {
+	      second++;
+	      if (second >= 60)
+	      {
+	        second = 0;
+	        minute++;
+	      }
+	      if (minute >= 60)
+	      {
+	        minute = 0;
+	        hour++;
+	      }
+	      if (hour >= 24)
+	      {
+	        hour = 0;
+	      }
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	      updateClockBuffer(hour, minute);  // Update the LED buffer with the new time
+	      setTimer2(100);  // Restart the 1000ms timer for clock update
+	    }
 
-  /* USER CODE BEGIN SysInit */
+	    if (timer1_flag == 1)
+	    {
+	      // LED refresh
+	      update7SEG(index_led);
+	      index_led++;
+	      if (index_led >= MAX_LED)
+	      {
+	        index_led = 0;
+	      }
 
-  /* USER CODE END SysInit */
+	      // DOT blinking logic
+	      timer_counter += 25;  // Accumulate 25ms each cycle
+	      if (timer_counter >= 100)
+	      {
+	        HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Toggle DOT every 1 second
+	        timer_counter = 0;  // Reset the counter
+	      }
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_TIM2_Init();
-  /* USER CODE BEGIN 2 */
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  HAL_TIM_Base_Start_IT(&htim2);
-
-
-
-
-
-setTimer1(25);
-int hour = 15 , minute = 8 , second = 50;
-setTimer2(100);
-while (1) {
-	 if (timer2_flag == 1){
-//    HAL_GPIO_TogglePin(GPIOA, LED_RED_Pin);
-	second ++;
-	if ( second >= 60) {
-		second = 0;
-		minute ++;
-	}
-	if( minute >= 60) {
-		minute = 0;
-		hour ++;
-	}
-	if( hour >=24) {
-		hour = 0;
-	}
-	updateClockBuffer (hour , minute) ;
-  // Initialize timer for 25ms period
-	    setTimer2(100);//HAL_Delay(1000);
-//	 setTimer2(100);
-		}
+	      setTimer1(25);  // Restart the 25ms timer for LED refresh
+	    }
+	  }
 }
-
-//	setTimer1(100);
-
-}
+	}
 	      /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -303,7 +306,7 @@ void updateClockBuffer(int hour, int minute) {
 	 	  break;
 	  		  }
 	   }
-	void update7SEG(int index){
+ 	void update7SEG(int index){
 					        switch (index) {
 					            case 0:
 					                // Hiển thị số 1 trên LED thứ nhất
@@ -339,22 +342,22 @@ void updateClockBuffer(int hour, int minute) {
 					        }
 	}
 	void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-		static int timer_counter = -250;  // Biến đếm thời gian*/
-
-
-				      if (timer1_flag == 1){
-				    	  timer_counter += 250;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
-		             if (timer_counter >= 1000) {
-		            	 HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
-		            	 timer_counter = 0;  }// Reset lại biến đếm sau 1 giây
-				    	 update7SEG(index_led);
-				    	 index_led++;
-				    	 if( index_led >= MAX_LED){
-				    		 index_led = 0;
-				    	 }
-				    	 setTimer1(25);
-
-		             }
+//		static int timer_counter = -250;  // Biến đếm thời gian*/
+//
+//
+//				      if (timer1_flag == 1){
+//				    	  timer_counter += 250;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
+//		             if (timer_counter >= 1000) {
+//		            	 HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
+//		            	 timer_counter = 0;  }// Reset lại biến đếm sau 1 giây
+//				    	 update7SEG(index_led);
+//				    	 index_led++;
+//				    	 if( index_led >= MAX_LED){
+//				    		 index_led = 0;
+//				    	 }
+//				    	 setTimer1(25);
+//
+//		             }
 
 
 	   timerRun();
