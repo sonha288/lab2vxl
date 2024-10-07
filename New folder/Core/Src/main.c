@@ -101,12 +101,27 @@ int main(void)
 
 
 setTimer1(25);
-  while (1)
-  {
+int hour = 15 , minute = 8 , second = 50;
 
-// setTimer1(100);
-	    }    /* USER CODE END WHILE */
+while (1) {
+ second ++;
+ if ( second >= 60) {
+ second = 0;
+ minute ++;
+ }
+ if( minute >= 60) {
+ minute = 0;
+ hour ++;
 }
+ if( hour >=24) {
+ hour = 0;
+}
+ updateClockBuffer (hour , minute) ;
+ HAL_Delay (1000) ;
+
+}
+	    }    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
 
   /* USER CODE END 3 */
@@ -235,7 +250,14 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 const int MAX_LED = 4;
 int index_led = 0;
-int led_buffer [4] = {5 , 4 , 0 , 6};
+int led_buffer [4] = {0,0,0,0};
+void updateClockBuffer(int hour, int minute) {
+    // Separate the digits of hour and minute
+    led_buffer[0] = hour / 10;      // Tens digit of hour
+    led_buffer[1] = hour % 10;      // Units digit of hour
+    led_buffer[2] = minute / 10;    // Tens digit of minute
+    led_buffer[3] = minute % 10;    // Units digit of minute
+}
 
 	 void display7SEG(int counter){
 
@@ -277,8 +299,8 @@ int led_buffer [4] = {5 , 4 , 0 , 6};
 					        switch (index) {
 					            case 0:
 					                // Hiển thị số 1 trên LED thứ nhất
-					                HAL_GPIO_WritePin(GPIOA, EN0_Pin, RESET);
 					                HAL_GPIO_WritePin(GPIOA, EN1_Pin | EN2_Pin | EN3_Pin, SET);
+					                HAL_GPIO_WritePin(GPIOA, EN0_Pin, RESET);
 					                display7SEG(led_buffer[0]);
 					                break;
 
@@ -325,8 +347,9 @@ int led_buffer [4] = {5 , 4 , 0 , 6};
 				    	  }
 
 
+				    	  setTimer1(25);
 
-			        setTimer1(25);
+//			        setTimer1(25);
 		 }
 	   timerRun();
 	}
