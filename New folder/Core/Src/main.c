@@ -96,56 +96,22 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   HAL_TIM_Base_Start_IT(&htim2);
 
-  HAL_TIM_Base_Start_IT(&htim2);
 
-   void display7SEG(int counter){
 
-    HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin| SEG4_Pin| SEG5_Pin | SEG6_Pin, SET );
-  		  switch (counter){
 
- 	  case 1:
-       HAL_GPIO_WritePin(GPIOB, SEG2_Pin | SEG1_Pin , RESET );
- 	   break;
 
- 	  case 2:
- 	   HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG3_Pin | SEG4_Pin | SEG6_Pin, RESET );
- 	   break;
-
- 	  }
-   }
- setTimer1(50);
+setTimer1(50);
   while (1)
   {
 
-    /* USER CODE END WHILE */
-	  if (timer1_flag == 1) {  // Kiểm tra ngắt đến từ Timer2
-		  static int status = 1 ;
-	 	        switch ( status) {
-	 	            case 1:
-
-	 	                HAL_GPIO_WritePin(GPIOA, EN0_Pin, RESET);
-	 	                HAL_GPIO_WritePin(GPIOA, EN1_Pin, SET);
-		 	            display7SEG(1);
-
-	 	                status = 2;
-	 	                break;
-	 	            case 2:
-	 	                HAL_GPIO_WritePin(GPIOA, EN0_Pin, SET);
-	 	                HAL_GPIO_WritePin(GPIOA, EN1_Pin, RESET);
-	 	                display7SEG(2);
-
-	 	                status = 1 ;
-	 	                break;
-
-	 	            default:
-	 	            	break;
-	 	        }
-	 	        setTimer1(50);
-	  }
-  }
+// setTimer1(100);
+	    }    /* USER CODE END WHILE */
 }
+    /* USER CODE BEGIN 3 */
+
+  /* USER CODE END 3 */
+
 /**
- *
   * @brief System Clock Configuration
   * @retval None
   */
@@ -239,14 +205,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|EN0_Pin|EN1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
+                          |EN2_Pin|EN3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
                           |SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_RED_Pin EN0_Pin EN1_Pin */
-  GPIO_InitStruct.Pin = LED_RED_Pin|EN0_Pin|EN1_Pin;
+  /*Configure GPIO pins : DOT_Pin LED_RED_Pin EN0_Pin EN1_Pin
+                           EN2_Pin EN3_Pin */
+  GPIO_InitStruct.Pin = DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
+                          |EN2_Pin|EN3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -264,9 +233,86 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	timerRun();
-}
+	 void display7SEG(int counter){
+
+	    HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin| SEG4_Pin| SEG5_Pin | SEG6_Pin, SET );
+	  		  switch (counter){
+
+	 	  case 1:
+	       HAL_GPIO_WritePin(GPIOB, SEG2_Pin | SEG1_Pin , RESET );
+	 	   break;
+
+	 	  case 2:
+	 	   HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG3_Pin | SEG4_Pin | SEG6_Pin, RESET );
+	 	   break;
+	 	  case 3:
+	 	   HAL_GPIO_WritePin(GPIOB,  SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin  | SEG6_Pin, RESET );
+	 	   break;
+
+	 	  case 0:
+	 	  HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin | SEG4_Pin | SEG5_Pin, RESET );
+	 	  break;
+	 	  }
+	   }
+
+	void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+		 static int timer_counter = 0;  // Biến đếm thời gian*/
+			  static int status = 1;         // Trạng thái quét LED 7 đoạn
+
+			  //   Kiểm tra nếu đạt đến 1 giây để nhấp nháy LED DOT
+
+		 if (timer1_flag == 1){
+			 timer_counter += 500;  // Cộng dồn thời gian, mỗi lần tăng thêm 50ms
+
+			        // Nhấp nháy LED DOT sau mỗi 1 giây
+			        if (timer_counter >= 1000) {
+			            HAL_GPIO_TogglePin(GPIOA, DOT_Pin);  // Đổi trạng thái LED DOT
+			            timer_counter = 0;  // Reset lại biến đếm sau 1 giây
+			        }
+			        switch (status) {
+			            case 1:
+			                // Hiển thị số 1 trên LED thứ nhất
+			                HAL_GPIO_WritePin(GPIOA, EN0_Pin, RESET);
+			                HAL_GPIO_WritePin(GPIOA, EN1_Pin | EN2_Pin | EN3_Pin, SET);
+			                display7SEG(1);
+			                status = 2;
+			                break;
+
+			            case 2:
+			                // Hiển thị số 2 trên LED thứ hai
+			                HAL_GPIO_WritePin(GPIOA, EN1_Pin, RESET);
+			                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN2_Pin | EN3_Pin, SET);
+			                display7SEG(2);
+			                status = 3;
+			                break;
+
+			            case 3:
+			                // Hiển thị số 3 trên LED thứ ba
+			                HAL_GPIO_WritePin(GPIOA, EN2_Pin, RESET);
+			                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN3_Pin, SET);
+			                display7SEG(3);
+			                status = 4;
+			                break;
+
+			            case 4:
+			                // Hiển thị số 0 trên LED thứ tư
+			                HAL_GPIO_WritePin(GPIOA, EN3_Pin, RESET);
+			                HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN2_Pin, SET);
+			                display7SEG(0);
+			                status = 1;  // Quay lại trạng thái ban đầu
+			                break;
+
+			            default:
+			                status = 1;
+			                break;
+			        }
+			        HAL_GPIO_TogglePin(GPIOA, DOT_Pin);
+
+			        setTimer1(50);
+		 }
+	   timerRun();
+	}
+
 /* USER CODE END 4 */
 
 /**
