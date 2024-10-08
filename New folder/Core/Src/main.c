@@ -275,17 +275,17 @@ void updateClockBuffer(int hour, int minute) {
 	    HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin| SEG4_Pin| SEG5_Pin | SEG6_Pin, SET );
 	  		  switch (counter){
 	  	  case 0:
-	  	   HAL_GPIO_WritePin(GPIOB,SEG0_Pin| SEG1_Pin | SEG2_Pin| SEG3_Pin| SEG4_Pin | SEG5_Pin, RESET );
-	  	   break;
+	  	  HAL_GPIO_WritePin(GPIOB,SEG0_Pin| SEG1_Pin | SEG2_Pin| SEG3_Pin| SEG4_Pin | SEG5_Pin, RESET );
+	  	  break;
 	 	  case 1:
-	       HAL_GPIO_WritePin(GPIOB, SEG2_Pin | SEG1_Pin , RESET );
-	 	   break;
+	    HAL_GPIO_WritePin(GPIOB, SEG2_Pin | SEG1_Pin , RESET );
+	 	  break;
 	 	  case 2:
-	 	   HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG3_Pin | SEG4_Pin | SEG6_Pin, RESET );
-	 	   break;
+	 	  HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG3_Pin | SEG4_Pin | SEG6_Pin, RESET );
+	 	  break;
 	 	  case 3:
-	 	   HAL_GPIO_WritePin(GPIOB,  SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin  | SEG6_Pin, RESET );
-	 	   break;
+	 	  HAL_GPIO_WritePin(GPIOB,  SEG0_Pin | SEG1_Pin | SEG2_Pin | SEG3_Pin  | SEG6_Pin, RESET );
+	 	  break;
 	 	  case 4:
 	 	  HAL_GPIO_WritePin(GPIOB, SEG1_Pin | SEG2_Pin | SEG6_Pin | SEG5_Pin, RESET );
 	 	  break;
